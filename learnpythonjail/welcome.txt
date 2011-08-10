@@ -1,0 +1,63 @@
+http://localhost:8087/w/edit?page=Welcome
+
+Welcome
+-------
+
+Welcome to learnpython.org's interactive Python tutorial.
+Whether you are an experienced programmer or not, this website is intended for everyone who wishes to learn the Python programming language.
+
+Just click on the chapter you wish to begin from, and follow the instructions. Good luck!
+
+Table of Contents
+-----------------
+
+### Learn the Basics
+
+- [[Hello, World!]]
+- [[Variables and Types]]
+- [[Basic Operators]]
+- [[Input from a user]]
+- [[Basic String Operations]]
+- [[String Formatting]]
+- [[Conditions]]
+- [[Loops]]
+- [[Functions]]
+- [[Lists]]
+- [[Dictionaries]]
+- [[List Comprehensions]]
+- [[Regular Expressions]]
+- [[Exception Handling]]
+- [[Files]]
+- [[The os Module]]
+- [[The urllib Module]]
+
+### Advanced Tutorials
+
+### Expert Tutorials
+
+http://localhost:8087/w/edit?page=Hello%2C%20World%21
+
+
+Tutorial
+--------
+
+Welcome to your first Python tutorial! Just click on the "Run" button above to execute the code. The target of this exercise is to make the code print to the output window bellow the following text:
+
+	"Hello, World!"
+
+Once you have changed the code to print out the correct text, run it and see if you did it right.
+
+Tutorial Code
+-------------
+
+	# This code needs to print out "Hello, World!"
+	print "Goodbye, World!"
+
+
+Expected Output
+---------------
+
+	Hello, World!
+
+
+

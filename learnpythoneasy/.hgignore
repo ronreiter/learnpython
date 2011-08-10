@@ -1,0 +1,4 @@
+syntax: glob
+*.pyc
+*.sh
+config.py

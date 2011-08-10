@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block heads %}
+  <link rel="alternate" type="application/x-wiki" href="/w/edit?page={{ page_title|uurlencode }}"/>
+{% endblock %}
+{% block title %}{{ page_title|escape }} — {{ settings.title|escape }}{% endblock %}
+{% block content %}
+<ul id="tabs"{% if public_page %}{% else %} class="locked"{% endif %}>
+  <li class="active"><a class="view" href="{{ page_title|pageurl }}">View</a></li>
+  <li><a href="/w/edit?page={{ page_title|uurlencode }}">Edit</a></li>
+  <li><a href="/w/history?page={{ page_title|uurlencode }}">History</a></li>
+</ul>
+<div class="wtabs extl" id="pb">
+  {% if page_exists %}
+    {{ page_text }}
+    {% if page_options.labels %}
+      <p class="categories">{% if settings.labels_text %}{{ settings.labels_text }}{% else %}Labels{% endif %}: {% for label in page_options.labels %}{% if forloop.first %}{% else %}, {% endif %}<a class="int" href="{{ label|labelurl }}">{{ label|escape }}</a>{% endfor %}.</p>
+    {% endif %}
+  {% else %}
+    <h1>{{ page_title }}</h1>
+    <p>This page does not exist.</p>
+    <form method="get" action="/w/edit">
+      <input type="hidden" name="page" value="{{ page_title|escape }}"/>
+      <input type="submit" value="Create it"/>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

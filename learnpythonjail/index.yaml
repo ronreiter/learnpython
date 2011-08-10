@@ -1,0 +1,12 @@
+indexes:
+- kind: WikiContent
+  properties:
+  - name: title
+  - name: updated
+    direction: desc
+
+- kind: WikiRevision
+  properties:
+  - name: title
+  - name: created
+    direction: desc

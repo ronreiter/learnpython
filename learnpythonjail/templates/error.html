@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — {{ settings.title }}{% endblock %}
+{% block content %}
+<div id="pb">
+  <h1>Error</h1>
+  {% if title %}
+    <p>{{ title }}</p>
+  {% endif %}
+</div>
+{% endblock %}

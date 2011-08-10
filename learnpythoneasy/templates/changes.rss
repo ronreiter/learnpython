@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<atom:link href="{{ self }}" rel="self" type="application/rss+xml" />
+<title>{{ settings.title }} Updates</title>
+<description>Recent changes in {{ settings.title }}</description>
+<link>{{ base }}/w/changes</link>
+{% for page in pages %}
+<item>
+<title>{{ page.title }}</title>
+<link>{{ base }}/{{ page.title }}</link>
+<guid>{{ base }}/{{ page.title }}</guid>
+<pubDate>{{ page.created|date:"r" }}</pubDate>
+<author>{{ page.author.wiki_user }}</author>
+</item>
+{% endfor %}
+</channel>
+</rss>

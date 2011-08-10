@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div id="pb">
+  <h1>Known users</h1>
+  <form method="post">
+    <table class="userlist">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>First activity</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for user in users %}
+        <tr>
+          <td><a href="/user:{{ user.wiki_user.nickname|uurlencode }}">{{ user.wiki_user.email|escape }}</a></td>
+          <td>{{ user.joined|date:"Y-m-d" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </form>
+</div>
+{% endblock %}

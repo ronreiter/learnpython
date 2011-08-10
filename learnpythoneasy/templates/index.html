@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block content %}
+<ul id="tabs">
+<li class="active"><a href="/w/index">View</a></li>
+<li><a href="/w/index.rss">RSS</a></li>
+</ul>
+<div id="pb" class="wtabs">
+
+<h1>Page index</h1>
+
+{% if pages %}
+  <ul>
+    {% for page in pages %}{% if page.redirect %}{% else %}
+    <li>
+      <a class="int" href="{{ page.title|pageurl }}">{{ page.title|escape }}</a>
+    </li>
+    {% endif %}{% endfor %}
+  </ul>
+{% else %}
+<p>Nothing to see here.</p>
+{% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> 
+	<meta name="description" content="learnpython.org is a free interactive Python tutorial for people who want to learn Python, fast." />
+	<meta name="keywords" content="Python,Tutorial,Interactive" />
+	<meta name="google-site-verification" content="cXWj61RCtO3fVP24Y7CO-nX0ba30tgdJYY8GGBactLI" />
+	<script src="static/jquery.js" type="text/javascript"></script>
+	<script src="static/js/codemirror.js" type="text/javascript"></script>
+	<script src="static/raphael-min.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="static/css/docs.css"/> 
+	<title>Learn Python - Free Interactive Python Tutorial</title>
+	<style type="text/css">
+		.CodeMirror-line-numbers {
+		width: 2.2em;
+		color: #aaa;
+		background-color: #eee;
+		text-align: right;
+		padding: .4em;
+		margin: 0;
+		font-family: monospace;
+		font-size: 10pt;
+		line-height: 1.1em;
+		}
+	</style>
+	<script>
+	var editor;
+	var chapter_item;
+	var expected_output = '';
+	var original_code;
+	var main_page;
+	
+	var canvas_width;
+	var canvas_height;
+	var paper;
+	var canvas_init_needed = true;
+
+	function initCanvas(container, width, height) {
+		canvas_width = width;
+		canvas_height = height;
+		paper = Raphael(container, canvas_width, canvas_height);
+		
+	}
+
+	function drawTurtle(data) {
+		var moves = data["moves"];
+		var angle = data["angle"];
+		
+		var middle_x = canvas_width / 2;
+		var middle_y = canvas_height / 2;
+
+		paper.clear();
+
+		paper.circle(middle_x, middle_y, 5).attr({"fill": "green", "stroke": "green"});
+		var x = middle_x;
+		var y = middle_y;
+		path = "M " + middle_x + " " + middle_y
+		for (var move in moves) {
+			x = x + moves[move][0];
+			y = y + moves[move][1];
+			path = path + "L " + x + " " + y;
+		}
+		paper.path(path).attr({"stroke-width": "3px","stroke": "green"});
+		turtle = paper.image("static/turtle.png", x-16, y-16, 32, 32);
+		turtle.rotate(angle);
+	}
+
+
+	function reset() {
+		editor.setCode(original_code);
+	}
+	
+	function execute() {
+		$('#output').css('color', '#bbbbbb');
+		$('#output').css('background-color', '#eeeeee');
+		$('#output').text('');
+		
+		$.ajax({ 
+			async: true, 
+			data: encodeURIComponent(editor.getCode()), 
+			success: exec_done, 
+			error: handle_error,
+			dataType: "json"
+		});
+	}
+	
+	function exec_done(data) {
+		$('#output').css('background-color', 'white');
+		if (data["output"] == "exception") {
+			$('#output').css('color', 'red');
+		} else {
+			$('#output').css('color', 'black');
+		}
+		if (data["output"] == "text" || data["output"] == "exception") {
+			$("#output").show();
+			$("#canvas_container").hide();
+			print(data["text"]);
+		}
+		
+		if (data["output"] == "turtle") {
+			$("#canvas_container").show();
+			$("#output").hide();
+		
+			if (canvas_init_needed) {
+				
+				initCanvas("canvas_container", $("#canvas_container").width(), $("#canvas_container").height());
+				canvas_init_needed = false;
+			}
+
+			drawTurtle(data);
+		}
+	}
+	
+	function handle_error(data) {
+		$('#output').css('color', 'black');
+		$('#output').css('background-color', 'white');
+		print(data["text"]);
+	}
+	
+	function print(text) {
+		$('#output').text(text);
+		if (expected_output != '' && expected_output == $.trim(text)) {
+			alert("Correct! Click OK to move on to the next chapter.");
+			next_chapter();
+		}
+	}
+
+	function load() {
+		editor = CodeMirror.fromTextArea('code', {
+			parserfile: ["../python/js/parsepython.js"],
+			stylesheet: "static/python/css/pythoncolors.css",
+			path: "static/js/",
+			lineNumbers: true,
+			textWrapping: false,
+			indentUnit: 4,
+			parserConfig: {'pythonVersion': 2, 'strictErrors': true}
+		});
+		
+		$.ajaxSetup({
+			url: '/',
+			type: 'POST'
+		});
+		
+		//original_code = editor.getCode();
+		original_code = "";
+		
+		main_page = $('#side').html();
+		back();
+
+	}
+	
+	function prev_chapter() {
+		var prev_item = chapter_item.prev();
+		if (prev_item.length > 0) {
+			tutorial_by_list_item(prev_item);
+		}
+	}
+	
+	function next_chapter() {
+		var next_item = chapter_item.next();
+		if (next_item.length > 0) {
+			tutorial_by_list_item(next_item);
+		}
+	}
+	
+	function back() {
+		$('#side').html(main_page);
+		$("#side ul li a").click(tutorial);
+		$("#side ul li a").attr("href", "#");
+		editor.setCode("");
+	}
+	
+	function change_chapter(chapter) {
+		$.getJSON('/tutorial/?id=' + encodeURIComponent(chapter), process_chapter_json_response);
+	}
+		
+	var process_chapter_json_response = function(chapter) {
+		
+		var title = chapter["title"];
+		var text = chapter["text"];
+		var code = chapter["code"];
+		var output = chapter["output"];
+		
+		side_html = '<h3>' + title + '</h3>';
+		side_html += text;
+		side_html += '<div style="clear: both"></div>';
+		side_html += '<a href="#" onClick="back()">&lt;&lt;&lt; Back</a>';
+		side_html += '<div style="clear: both"></div>';
+		side_html += '<a href="#" onClick="prev_chapter()" style="float: left">Previous Chapter</a>';
+		side_html += '<a href="#" onClick="next_chapter()" style="float: right">Next Chapter</a>';
+		$('#side').html(side_html);
+		editor.setCode(code);
+		expected_output = output;
+		original_code = code;
+	};
+	
+	function tutorial_by_list_item(item) {
+		chapter = $(item).text()
+		chapter_item = item;
+		change_chapter(chapter);
+	}
+	
+	var tutorial = function(item) {
+		chapter = $(this).text();
+		chapter_item = $(this.parentNode);
+		change_chapter(chapter);
+	};
+
+	function about() {
+		about_html = $("#about").html();
+		about_html += '<div style="clear: both"></div>';
+		about_html += '<a href="#" onClick="back()">&lt;&lt;&lt; Back</a>';
+
+		$('#side').html(about_html);
+	}
+	
+	function show_expected() {
+		// TODO: turtle mode
+		$('#output').css('color', 'green');
+		$('#output').text(expected_output);
+	}
+	</script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22741967-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+</head>
+<body onload="load()">
+
+<span style="float: left; padding-top: 15px; padding-right: 10px;"><a href="/"><img style="border: 0px" src="static/pythonlogo.png"/></a></span>
+<span style="text-align: right; float: right"><h2>Free Interactive Python Tutorial</h2><a href="#" onClick="about()">About</a> | <a href="/Welcome">Contribute Tutorials (Wiki)</a></span>
+<a href="/"><span style="color: black"><h1>learnpython<span style="color: #58c">.org</span></h1></span></a>
+<div style="width: 100%; padding-bottom: 5px">
+	<script type="text/javascript"><!--
+	google_ad_client = "pub-3723950136133694";
+	/* 728x15, נוצר 05/05/11 */
+	google_ad_slot = "4359671306";
+	google_ad_width = 728;
+	google_ad_height = 15;
+	//-->
+	</script>
+	<script type="text/javascript"
+	src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+	</script>
+</div>
+<div style="float: right; padding-left: 10px">
+<a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://www.learnpython.org"></a>
+</div>
+<!-- AddThis Button BEGIN -->
+<div class="addthis_toolbox addthis_default_style " style="display: inline; float: right">
+<a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+<a class="addthis_button_tweet"></a>
+<a class="addthis_counter addthis_pill_style"></a>
+</div>
+<script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
+<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4dafdfe6039782b1"></script>
+<!-- AddThis Button END -->
+		
+<div style="width: 980px; height: 80%">
+	<h3>Code Window</h3>
+	<div style="float: left; width: 480px; height: 100%;">
+	
+		<div style="border: 1px solid black; padding: 0px;">	
+<textarea id="code" style="width:480px; height: 60%">
+# Welcome to the Interactive Python Tutorial.
+# Start by choosing a chapter from the right side menu
+# and write your code in this window.
+
+go(10)
+turn(90)
+go(10)
+for x in xrange(10):
+    go(2)
+    turn(10)
+
+</textarea>
+		</div>
+		<div style="width:480px; height: 33%">
+		<h3><a href="javascript:execute()">Run</a> | <a href="javascript:reset()">Reset</a> | <a href="javascript:show_expected()">Show Expected Output</a></h3>
+		<div id="canvas_container" style="display: none; border: 1px solid; width: 480px; height: 100%"></div>
+		<textarea id="output" style="width:480px; height: 100%" readonly></textarea>
+		</div>
+		
+	</div>
+
+	<div style="width: 460px; float: left; height: 100%">
+		<div style="width: 100%; height: 100% auto" id="side">
+		{{ welcome }}
+		</div>
+
+	</div>
+
+</div>
+
+<div style="clear: both"></div>
+
+<div class="copyright">All content in this website is licensed under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0</a> license.</div>
+<div class="copyright">This site is not affiliated with <a href="http://www.python.org">python.org</a></div>
+
+<div id="about" style="display: none">
+<p>This website is undergoing constant maintenance and improvements. Please send your feedback to <a href="mailto:ron.reiter@gmail.com">ron.reiter@gmail.com</a>.</p>
+<!--
+<p>You are welcome to send your donations via Paypal:</p>
+<center>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/WEBSCR-640-20110401-1/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/WEBSCR-640-20110401-1/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+</center>
+</div>
+-->
+</div>
+<!-- Chatty Loader Code -->
+<script id="chatty_loader_script" type="text/javascript" language="javascript" src="http://app.chattybar.com/chatty-loader.js?room_id=7&site_id=7"></script>
+
+</body>
+</html>

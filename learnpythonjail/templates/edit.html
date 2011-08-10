@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Editing "{{ page.title|escape }}" — {{ settings.title|escape }}{% endblock %}
+{% block heads %}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+<script type="text/javascript" src="/static/scripts/markitup/jquery.markitup.pack.js"></script>
+<script type="text/javascript" src="/static/scripts/markitup/sets/markdown/set.js"></script>
+<script type="text/javascript" src="/static/editor.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/scripts/markitup/skins/markitup/style.css" />
+<link rel="stylesheet" type="text/css" href="/static/scripts/markitup/sets/markdown/style.css" />
+{% endblock %}
+{% block content %}
+  <ul id="tabs">
+    <li><a href="{{ page.title|pageurl }}">View</a></li>
+    <li class="active"><a href="/w/edit?page={{ page.title|uurlencode }}">Edit</a></li>
+    <li><a href="/w/history?page={{ page.title|uurlencode }}">History</a></li>
+  </ul>
+  <div class="wtabs" id="pb">
+    <h1>{% if page.title %}{{ page.title|escape }}{% else %}New page{% endif %}</h1>
+    <form action="/w/edit" method="POST" class="markdown">
+        <input type="hidden" name="name" value="{{ page.title|uurlencode }}"/>
+        <textarea rows="20" cols="80" name="body" id="editor">{% if page.body %}{{ page.body }}{% else %}{% if page.title %}# {{ page.title }}
+
+**{{ page.title }}** is something this page explains.{% else %}# Page title
+
+Page text.{% endif %}{% endif %}</textarea>
+        {% if not settings.pread %}
+        <p><label><input type="checkbox" value="1" name="delete"/>Delete this page</label></p>
+        {% endif %}
+        <p class="extl">You can use HTML and <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown</a> for formatting, <a class="int" href="/w/interwiki" target="_blank">interwikis</a> for linking.</p>
+        <input type="submit" value="Save Changes"/> or <a class="int" href="{{ page.title|pageurl }}">cancel</a>
+    </form>
+  </div>
+{% endblock %}

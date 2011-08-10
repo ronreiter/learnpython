@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Links to {{ page_title|escape }}{% endblock %}
+{% block content %}
+<ul id="tabs">
+  <li class="active"><a href="{{ page_title|pageurl }}">View</a></li>
+  <li><a href="/w/edit?page={{ page_title|uurlencode }}">Edit</a></li>
+  <li><a href="/w/history?page={{ page_title|uurlencode }}">History</a></li>
+</ul>
+<div id="pb" class="wtabs">
+<h1>{{ page_title|escape }}</h1>
+{% if page_links %}
+<p>The following pages link here:</p>
+<ul>{% for link in page_links %}
+  <li><a href="{{ link|pageurl }}">{{ link|escape }}</a></li>
+{% endfor %}</ul>
+{% else %}
+<p>Other pages don't link to <a href="{{ page_title|pageurl }}">{{ page_title|escape }}</a>.</p>
+{% endif %}
+</div>
+{% endblock %}

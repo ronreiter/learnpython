@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title|escape }}{% endblock %}
+{% block content %}
+<ul id="tabs">
+  <li><a href="{{ page_title|pageurl }}">View</a></li>
+  <li><a href="/w/edit?page={{ page_title|uurlencode }}">Edit</a></li>
+  <li class="active"><a href="/w/history?page={{ page_title|uurlencode }}">History</a></li>
+</ul>
+<div id="pb" class="wtabs">
+<h1>{{ page_title|escape }}</h1>
+
+{% if revisions %}
+  <p>The following revisions are available:</p>
+  {% for revision in revisions %}
+      <ul>
+        <li><a class="int" href="{{ page_title|pageurl }}?r={{ revision.key }}">Revision from {{ revision.created|date:"d.m.y, H:i"}}</a></li>
+      </ul>
+  {% endfor %}
+{% else %}
+<p>We have no records for this page.</p>
+{% endif %}
+</div>
+{% endblock %}
